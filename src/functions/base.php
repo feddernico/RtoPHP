@@ -139,6 +139,12 @@ function median($x, $null_rm = FALSE)
     return ( ($x[$i-1] + $x[$i]) / 2 );
 }
 
+/**
+ * Calculates the mode of the given data
+ * 
+ * @param unknown $x
+ * @return unknown|mixed
+ */
 function mode($x) 
 {
     // if $x 
@@ -149,8 +155,8 @@ function mode($x)
     if(is_multidim($x))
         $x = array_flatten($x);
     
-    $values = array_count_values($valueArray);
-    $mode = array_search(max($values), $values);
+    $values = array_count_values($x);
+    return array_search(max($values), $values);
 }
 
 /**
