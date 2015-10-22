@@ -57,6 +57,8 @@ function covariance($x, $y, $null_rm = FALSE)
  /**
   * Calculates the mean of the given data
   * 
+  * 
+  * 
   * @param unknown $x
   * @param number $trim
   * @param string $null_rm
@@ -64,7 +66,8 @@ function covariance($x, $y, $null_rm = FALSE)
   */
 function mean($x, $trim = 1, $null_rm = false) 
 {
-    if(in_array(NULL, $x))
+    // if there are NULL values return NULL
+    if(in_array(NULL, $x) && !$null_rm)
         return NULL;
 	
 	// $sum starts with 0
@@ -84,6 +87,10 @@ function mean($x, $trim = 1, $null_rm = false)
 		if(is_multidim($x))
 		    $x = array_flatten($x);
 		
+		// if $null_rm is equal to TRUE removes NULL values
+		if($null_rm)
+		     $x = array_filter($x);
+		
 		$n = sizeof($x);
 		$p = 100;
 		/* if $trim is in a valid percentage range (0, 1) gets the
@@ -99,12 +106,51 @@ function mean($x, $trim = 1, $null_rm = false)
 		return (sum($x, $null_rm) / $n);
 			
 	} else if(is_numeric($x) || is_bool($x))
-		return ($x);
+		return $x;
 	else {
 		trigger_error('Warning message:\r\n In mean(...):\r\n $x: ' . $x . 
 				' is not numeric or logic: NULL returned', E_WARNING);
 		return NULL;
 	}
+}
+
+/**
+ * Calculates the median of the given data
+ * 
+ * @param unknown $x
+ * @param string $null_rm
+ * @return NULL|array|number
+ */
+function median($x, $null_rm = FALSE) 
+{
+    // if there are NULL values return NULL
+    if(in_array(NULL, $x) && !$null_rm)
+        return NULL;
+    
+    sort($x);
+    
+    $x = array_unique($x);
+    
+    $i = sizeof($x) / 2;
+    // if the length of $x is an even number
+    if(sizeof($x) % 2 != 0)
+        return $x[ ceil($i) ];
+    
+    return ( ($x[$i-1] + $x[$i]) / 2 );
+}
+
+function mode($x) 
+{
+    // if $x 
+    if(is_numeric($x) || is_bool($x))
+        return $x;
+    
+    // if $x is multidimensional it flattens the former
+    if(is_multidim($x))
+        $x = array_flatten($x);
+    
+    $values = array_count_values($valueArray);
+    $mode = array_search(max($values), $values);
 }
 
 /**
@@ -116,6 +162,10 @@ function mean($x, $trim = 1, $null_rm = false)
  */
 function sum($x, $null_rm = FALSE) 
 {
+    // if there are NULL values return NULL
+    if(in_array(NULL, $x) && !$null_rm)
+        return NULL;
+    
 	// $sum starts from 0
 	$sum = 0;
 	$values = $x;
@@ -128,9 +178,6 @@ function sum($x, $null_rm = FALSE)
 	if($null_rm)
 	    $x = array_filter($x);
 	
-	if(in_array(NULL, $x))
-	    return NULL;
-	
 	// sums all the $x values
 	foreach($x as $val) 
 		$sum += $val;
@@ -139,28 +186,40 @@ function sum($x, $null_rm = FALSE)
 }
 
 /**
+ * Calculates the standard deviation of the given data
  * 
  * @param unknown $x
  * @param string $null_rm
  */
-function sd($x, $null_rm = FALSE) { return sqrt(variance($x, $null_rm)); }
+function sd($x, $null_rm = FALSE) 
+{ 
+    // if there are NULL values return NULL
+    if(in_array(NULL, $x) && !$null_rm)
+        return NULL;
+    
+    return sqrt(variance($x, $null_rm)); 
+}
 
 /**
- * 
+ * Calculates the variance
  * 
  * @param unknown $x
- * @param string $y
  * @param string $na_rm
- * @param string $use
  */
-function variance($x, $y = NULL, $null_rm = FALSE, $use = '') 
-{
+function variance($x, $null_rm = FALSE) 
+{   
+    // if there are NULL values return NULL
+    if(in_array(NULL, $x) && !$null_rm)
+        return NULL;
+    
 	$mean = mean($x, 1, $null_rm);
-	$temp_calc = 0;
+    $temp_calc = 0;
 	
+    // if $x is multidimensional it flattens the former
 	if(is_multidim($x))
 	    array_flatten($x);
 	
+	// calculates the sum of squared deviations from the mean
 	foreach($x as $val)	    
 	    $temp_calc += pow(($val - $mean), 2);
 
