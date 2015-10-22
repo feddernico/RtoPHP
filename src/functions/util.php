@@ -52,18 +52,4 @@ function is_multidim($x)
 	return false;
 }
 
-/**
- * Removes all NULL values from the given $x variable
- * 
- * @param unknown $x
- */
-function null_rm($x) 
-{
-	if(is_array($var))
-		
-		$new_x = array();
-		
-	return $new_x;
-}
-
 ?>

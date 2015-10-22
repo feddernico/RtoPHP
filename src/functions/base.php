@@ -75,7 +75,7 @@ function mean($x, $trim = 1, $null_rm = false)
 		
 		// if $trim is not numeric return NULL with a error
 		if(!is_numeric($trim)) {
-			trigger_error('Warning message in mean(...): $trim must be '
+			trigger_error('Error message in mean(...): $trim must be '
 					. 'numeric of length one', E_USER_ERROR);
 			return NULL;
 		}
@@ -89,11 +89,11 @@ function mean($x, $trim = 1, $null_rm = false)
 		/* if $trim is in a valid percentage range (0, 1) gets the
 		 * porportion $P */
 		if($trim > 0 && $trim < 1) {
-			
+	
 		    sort($x);
 			// calculates the first index to be extracted from the original $x
 			$k = floor( ($n * $trim) / 2 );
-			
+	        // returns the trimmed mean		
 			return ( sum( array_slice($x, $k, $n-$k-1), $null_rm) / ($n - (2*$k)) );
 		}
 		return (sum($x, $null_rm) / $n);
@@ -124,6 +124,10 @@ function sum($x, $null_rm = FALSE)
 	if(is_multidim($x))
 		$x = array_flatten($x);
 
+	// if $null_rm is equal to TRUE removes NULL values
+	if($null_rm)
+	    $x = array_filter($x);
+	
 	if(in_array(NULL, $x))
 	    return NULL;
 	
