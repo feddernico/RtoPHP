@@ -33,7 +33,7 @@ function covariance($x, $y, $null_rm = FALSE)
     if(is_multidim($y))
         array_flatten($y);
     
-    if(sizeof($x) != sizeof($y)) {
+    if(count($x) != count($y)) {
         trigger_error('Warning message in mean(...): $x and $y do not have same'
             . ' dimensions.', E_USER_ERROR);
         return NULL;
@@ -51,7 +51,7 @@ function covariance($x, $y, $null_rm = FALSE)
         foreach($y as $val_y)
             $temp_calc += (($val_x - $mean_x) * ($val_y - $mean_y));
         
-    return $temp_calc / sizeof($x);
+    return $temp_calc / count($x);
 }
 
  /**
@@ -91,7 +91,7 @@ function mean($x, $trim = 1, $null_rm = false)
 		if($null_rm)
 		     $x = array_filter($x);
 		
-		$n = sizeof($x);
+		$n = count($x);
 		$p = 100;
 		/* if $trim is in a valid percentage range (0, 1) gets the
 		 * porportion $P */
@@ -131,9 +131,9 @@ function median($x, $null_rm = FALSE)
     
     $x = array_unique($x);
     
-    $i = sizeof($x) / 2;
+    $i = count($x) / 2;
     // if the length of $x is an even number
-    if(sizeof($x) % 2 != 0)
+    if(count($x) % 2 != 0)
         return $x[ ceil($i) ];
     
     return ( ($x[$i-1] + $x[$i]) / 2 );
@@ -147,7 +147,7 @@ function median($x, $null_rm = FALSE)
  */
 function mode($x) 
 {
-    // if $x 
+    // if $x is numeric or boolean return the given $x
     if(is_numeric($x) || is_bool($x))
         return $x;
     
@@ -158,6 +158,57 @@ function mode($x)
     $values = array_count_values($x);
     return array_search(max($values), $values);
 }
+
+/**
+ * 
+ * @param unknown $x
+ * @param unknown $probs
+ * @return multitype:unknown
+ */
+function quantile($x, $probs = array(0, 0.25, 0.5, 0.75, 1)) {
+    $quantiles = array();
+    // if $x is numeric or boolean return the given $x for each quantile
+    if(is_numeric($x) || is_bool($x)) {
+        foreach ($probs as $p) {
+            if(0 < $p && $p < 1)
+                $quantiles[($p * 100) . "%"] = $x;
+            else {
+                trigger_error('Error message in quantile(...): $probs not in [0, 1]',
+                    E_USER_ERROR);
+                return NULL;
+            }    
+        }
+        return $quantiles;
+    }
+    
+    // if $x is multidimensional it flattens the former
+    if(is_multidim($x))
+        $x = array_flatten($x);
+    
+    // if $x is not numeric then an error message is returned  
+    if(!is_array($x)) {
+        trigger_error('Error message in quantile(...): $x must be numeric', 
+            E_USER_ERROR);
+        return NULL;
+    }
+ 
+    // sorts the array
+    sort($x);
+    
+    // for each $probs values
+    foreach ($probs as $p) {
+        $i = $p * (count($x) - 1);
+        $int_i = floor($i);
+        $float_part_i = $i - $int_i;
+        
+        if(count($x) > $int_i + 1)
+            $quantiles[($p * 100) . "%"] = ($float_part_i*($x[$int_i+1] - $x[$int_i]) + $x[$int_i]);
+        else
+            $quantiles[($p * 100) . "%"] = $x[$int_i];
+    }
+    return $quantiles;
+}
+
 
 /**
  * Calculates the sum of all values containes in $x
@@ -229,7 +280,7 @@ function variance($x, $null_rm = FALSE)
 	foreach($x as $val)	    
 	    $temp_calc += pow(($val - $mean), 2);
 
-	return $temp_calc / (sizeof($x) - 1);
+	return $temp_calc / (count($x) - 1);
 } 
 
 ?>
